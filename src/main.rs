@@ -21,6 +21,8 @@ use tui::{
     Terminal,
 };
 
+use cellaxon_base::tool::ticker::Ticker;
+
 
 fn main() -> Result<(), Box<dyn Error>>
 {
@@ -54,13 +56,18 @@ fn main() -> Result<(), Box<dyn Error>>
 
 fn run_app<B: Backend>(terminal: &mut Terminal<B>, mut updater: updater::Updater) -> io::Result<()>
 {
+    let mut ticker_ui_update: Ticker = Ticker::new(100);
+
     loop
     {
         thread::sleep(Duration::from_millis(1));
 
         updater.run();
 
-        terminal.draw(|f| ui::ui(f, &updater))?;
+        if ticker_ui_update.check()
+        {
+            terminal.draw(|f| ui::ui(f, &updater))?;
+        }
 
         // 키 입력 처리
         let last_tick = Instant::now();
